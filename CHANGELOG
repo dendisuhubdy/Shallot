@@ -1,0 +1,20 @@
+Changes in version 0.0.2 - 2006-02-03
+  o Performance improvements
+    - Only calculate the components dmp1, dmq1 and iqmp of the RSA key
+      after a valid key is found instead of in every round of the loop.
+      This kicks the speed up by factor six (!) compared to v0.0.1.
+    - Use SHA1_Init(), SHA1_Update() and SHA1_Final() instead of the
+      SHA1() wrapper function. This gives us another +10% speed.
+
+  o Sanity Checks
+    - Check if rsa->e is coprime to phi(n) after computing a key.
+    - Check if rsa->e is less than phi(n) after computing a key.
+    - That way, we detect "bad keys" which occur _very_ rarely.
+
+  o Minor Bugfixes
+    - Fixed incompatibility with the obsoleted gcc-2.x compiler.
+    - Change the 'brute force attempt counter' variable to long
+      long cause 32 bit will overrun after a night of crunching.
+    - Replace unsigned int by uint32_t to make it more portable.
+    - Include a 'LICENSE' file (MIT-license) with some additions
+      because weasel thinks this might be a good idea :-)
