@@ -1,27 +1,41 @@
-----------------------------------------------------------------------
-                           Onion Hash v0.0.2
-----------------------------------------------------------------------
+---------------------------------------------------------------------
+                            shallot 0.0.1
+---------------------------------------------------------------------
 
 
 CONTENT
 ~~~~~~~
+./
 CHANGELOG   - lists the latest improvements/fixes
 LICENSE     - for those who believe in copyright
-Makefile    - builts the binary (on most systems)
+configure   - configures shallot for your system
+Makefile    - builds the binary (on most systems)
 README      - the file you are reading right now
-onionhash.c - computes customized hashes and keys
+
+./src/
+shallot.c   - computes customized hashes and keys
+config.h    - holds the current configure output
+
+
+HISTORY
+~~~~~~~
+This program is based on Bebop's program, onionhash-0.0.2.  Since
+Bebop has mysteriously disappeared (along with his hidden service
+site), I decided to branch the source and improve upon it further
+(see CHANGELOG).  However, I owe much of the  credit to Bebop for
+the original onionhash, as shallot would not exist without it.
 
 
 INSTALL
 ~~~~~~~
-* you need to have a recent version of OpenSSL installed
-* type "make" and pray (autoconf/make support in v0.0.3)
-* run the program, get some coffee. come back next month
+* You need to have a recent version of OpenSSL installed.
+* Type "make" and pray. (configure script coming soon?)
+* Run the program, get some runts. Come back next month.
 
 
 ABOUT
 ~~~~~
-This program allows you to create customized onionhashes for Tor
+This program allows you to create customized SHA1 hashes for Tor
 hidden services. It's based on THC's Fuzzy Fingerprint technique
 (paper available at http://thc.org/papers/ffp.pdf). "Customized"
 means, you can choose parts of the hash to match certain regular
@@ -29,8 +43,8 @@ expression patterns.
 
 >> example: create private key for test*.onion:
 
-$ ./onionhash 
-Usage: onionhash pattern
+$ ./shallot
+Usage: shallot pattern
 base32 alphabet allows letters [a-z] and digits [2-7]
 pattern can be a POSIX-style regular expression, e.g.
   xxx           must contain 'xxx'
@@ -41,7 +55,7 @@ pattern can be a POSIX-style regular expression, e.g.
   [a-z]{16}     must contain letters only, no digits
   ^dusk.*dawn$  must begin with 'dusk' and end with 'dawn'
 
-$ ./onionhash ^test
+$ ./shallot ^test
 ----------------------------------------------------------------
 Found matching pattern after 99133 tries: testvztz3tfoiofv.onion
 ----------------------------------------------------------------
@@ -67,45 +81,23 @@ and you should be reachable as testvztz3tfoiofv.onion.
 
 
 SECURITY
---------
-To evaluate the security of the generated private keys, one must
-first know how the RSA-algorithm as implemented in OpenSSL works:
-
-1. Choose two large prime numbers p, and q, such that p != q,
-   randomly and independently of each other. Compute is N = pq.
-2. Compute the totient phi(n) = (p-1)(q-1)
-3. Choose an integer 1 < e < phi(n), which is coprime to phi(n)
-4. Compute d such that ed = 1 mod phi(n)
-
-What's differnet in OnionHash? - We only chose the first expoment e
-by random. The next one is calculated as e+2. That's it. Is it less
-secure? I bet no, but still i say, you should not bet on this 100%. 
-
-
-Comment: The MetaWiki admin claims in the QuestionAndAswers section of
-         the HiddenWiki that OnionHash would create insecure keys. Not
-         only hasn't he/she provided any kind of proof for this really
-         bold statement but also are my comments on his/her assumption
-         censored/deleted. I hereby repeat my invitation - come to ORC
-         (irc://3d2et7ek4jjhnv3k.onion) and let us discuss this issue.
-         Torizens believe in math, not in propaganda.
-
-Updates: OnionHash v0.0.1 had a comment that said something like "only
-         the first key is securely generated". I must admit, that this
-         is a bit misleading. it should better say "only the first key
-         is chosen randomly by OpenSSL's RSA_generate_key() function".
+~~~~~~~~
+Shallot generates a lot of keys in a non-standard fashion, by varying
+e. While some may  debate that this leads to weaker  keys, all sanity
+checks found in  PKCS#1 v2.1 are strictly followed,  so I don't worry
+too much. Please feel free to disagree with me.
 
 
 PERFORMANCE
------------
+~~~~~~~~~~~
 First of all, you cannot create any hash you want (in adequate time).
 If you could easily find collisions on the first half (80 bit) of the
 SHA1 hash, Torland would be in serious trouble.
 
-The speed of the brute_force_onion() loop can be divided in:
+The speed of the worker() loop can be divided in:
 +----------------------------------------+
 | function(s)          | CPU consumption |
-|----------------------+-----------------+
+|----------------------+-----------------|
 | compute next RSA key |            4.6% |
 |   PEM-encode RSA key |           59.4% |
 |    compute SHA1 hash |           30.6% |
@@ -113,39 +105,37 @@ The speed of the brute_force_onion() loop can be divided in:
 |   compare with regex |            2.7% |
 +----------------------------------------+
 
-On a 1.8GHz x86-machine, i get about 250k hashes per second:
-+-----------------------------------------------------------------+
-| chars | avarange number of tries | avarange time on i386/1.8GHz |
-|-------+--------------------------+------------------------------|
-|     1 |              32^1  =  32 |                       <1 sec |
-|     2 |              32^2  =  1k |                       <1 sec |
-|     3 |              32^3  = 32k |                       <1 sec |
-|     4 |              32^4  =  1m |                        4 sec |
-|     5 |              32^5  = 32m |                        2 min |
-|     6 |              32^6  =  1g |                       1 hour |
-|     7 |              32^7  = 32g |                       2 days |
-|     8 |              23^8  =  1t |                      50 days |
-|     9 |              32^9  = 32t |                      5 years |
-|    16 |              32^16 =  1y |                     too long |
-+-----------------------------------------------------------------+
+On a 1.8GHz x86-machine, Bebop got about 250k hashes per second,
+but on my 1.8GHz x86-machine, I  only get about 220k hashes/sec.
++---------------------------------------------+
+| chars | ~number of tries | ~time @ 250 KH/s |
+|-------+------------------+------------------|
+|     1 |      32^1  =  32 |           <1 sec |
+|     2 |      32^2  =  1k |           <1 sec |
+|     3 |      32^3  = 32k |           <1 sec |
+|     4 |      32^4  =  1m |            4 sec |
+|     5 |      32^5  = 32m |            2 min |
+|     6 |      32^6  =  1g |           1 hour |
+|     7 |      32^7  = 32g |           2 days |
+|     8 |      23^8  =  1t |          50 days |
+|     9 |      32^9  = 32t |          5 years |
+|    16 |      32^16 =  1y |         too long |
++---------------------------------------------+
 Note: you can speed it up if you're only interested in a certain
       string to appear somewhere, instead of at a fixed position
       like the beginning of the hash. Also you could make use of
-      'leetspeech', therfore allowing both, e.g. [3e] or [7t] ;)
+      'leetspeech', therefore allowing both, e.g. [3e] or [7t]
 
 
 BUGS
-----
-Registration of an onionhash containing the string 'coca-cola' on the
-dirserver(s) may lead to persecution by the almighty trademark police.
+~~~~
+Let me know!  If there are any, it's probably in the Linux port.
 
 
 TODO
-----
-* write an autoconf/make script for building system-independent Makefiles
-* don't do malloc() and free() in every loop, do it once before and after
+~~~~
 * use something faster than OpenSSL's i2d_RSAPublicKey() for PEM-encoding
-* optinal (as configure parameter) use an assembly implementation of SHA1
-* optinal, use GnuMP's mpz_invert() instead of OpenSSL's BN_mod_inverse()
-* make sure the requested onionhash contains base32 chars (2-7, a-z) only
-* make sure the requested onionhash is valid (= not longer that 16 chars)
+* lots and lots of command line options (flags) so you can fine tune
+* support hardware acceleration (e.g. VIA Padlock's hardware SHA-1)
+* make sure the requested hash contains base32 chars (2-7, a-z) only
+* make sure the requested hash is valid (not longer that 16 chars)

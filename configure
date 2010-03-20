@@ -1,0 +1,20 @@
+#!/bin/sh
+
+cfg_path=src/config.h
+
+>$cfg_path echo "#define VERSION \"0.0.1\""
+
+if [ `uname -s | grep -i bsd` ]; then
+	echo "BSD detected!  Good job..."
+	>>$cfg_path echo "#define BSD 1"
+elif [ `uname -s | grep -i linux` ]; then
+	echo "Liunx detected.  Have you considered switching to BSD?"
+	>>$cfg_path echo "#define LINUX_PORT 1"
+else
+	echo "Unable to determine Operating System.  Bye."
+	exit
+fi
+
+echo "Configuration successful.  This does not mean it will build."
+echo "If you are missing gcc, or required libraries/headers, you"
+echo "will need to install them first."
