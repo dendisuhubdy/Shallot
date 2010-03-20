@@ -1,7 +1,6 @@
 ---------------------------------------------------------------------
-                            shallot 0.0.1
+                            shallot 0.0.2
 ---------------------------------------------------------------------
-
 
 CONTENT
 ~~~~~~~
@@ -12,9 +11,7 @@ configure   - configures shallot for your system
 Makefile    - builds the binary (on most systems)
 README      - the file you are reading right now
 
-./src/
-shallot.c   - computes customized hashes and keys
-config.h    - holds the current configure output
+./src/      - contains source code for shallot
 
 
 HISTORY
@@ -29,8 +26,9 @@ the original onionhash, as shallot would not exist without it.
 INSTALL
 ~~~~~~~
 * You need to have a recent version of OpenSSL installed.
-* Type "make" and pray. (configure script coming soon?)
-* Run the program, get some runts. Come back next month.
+* First run the configure script `./configure` and wait.
+* Type `make` and pray everything compiles successfully.
+* Run the program, get some runts.  Come back tomorrow.
 
 
 ABOUT
@@ -44,7 +42,17 @@ expression patterns.
 >> example: create private key for test*.onion:
 
 $ ./shallot
-Usage: shallot pattern
+Usage: shallot [-dmpv] [-f <file>] [-t count] [-e limit] pattern
+  -d        : Daemonize (requires -f)
+  -m        : Monitor mode (incompatible with -d/-v)
+  -p        : Print 'pattern' help and exit (requires pattern)
+  -v        : Verbose mode (debugging)
+  -f <file> : Write output to <file>
+  -t count  : Forces exactly count threads to be spawned
+  -e limit  : Manually define the limit for e
+Version: 0.0.2
+
+$ ./shallot -p foo
 base32 alphabet allows letters [a-z] and digits [2-7]
 pattern can be a POSIX-style regular expression, e.g.
   xxx           must contain 'xxx'
@@ -95,32 +103,34 @@ If you could easily find collisions on the first half (80 bit) of the
 SHA1 hash, Torland would be in serious trouble.
 
 The speed of the worker() loop can be divided in:
-+----------------------------------------+
-| function(s)          | CPU consumption |
-|----------------------+-----------------|
-| compute next RSA key |            4.6% |
-|   PEM-encode RSA key |           59.4% |
-|    compute SHA1 hash |           30.6% |
-|   BASE32-encode hash |            2.7% |
-|   compare with regex |            2.7% |
-+----------------------------------------+
 
-On a 1.8GHz x86-machine, Bebop got about 250k hashes per second,
-but on my 1.8GHz x86-machine, I  only get about 220k hashes/sec.
++------------------------------------+
+| function(s)      | CPU consumption |
+|------------------+-----------------|
+|  Copy SHA-1 hash |            1.5% |
+|  Endian swap 'e' |            0.1% |
+|         Hash 'e' |           67.9% |
+|  B32-encode hash |           21.9% |
+| Regex comparison |            8.6% |
++------------------------------------+
+  *** This is approximate.  YMMV ***
+
+On my 1.5GHz x86-machine, I get about 500k hashes/sec.
 +---------------------------------------------+
-| chars | ~number of tries | ~time @ 250 KH/s |
+| chars | ~number of tries | ~time @ 500 KH/s |
 |-------+------------------+------------------|
-|     1 |      32^1  =  32 |           <1 sec |
-|     2 |      32^2  =  1k |           <1 sec |
-|     3 |      32^3  = 32k |           <1 sec |
-|     4 |      32^4  =  1m |            4 sec |
-|     5 |      32^5  = 32m |            2 min |
-|     6 |      32^6  =  1g |           1 hour |
-|     7 |      32^7  = 32g |           2 days |
-|     8 |      23^8  =  1t |          50 days |
-|     9 |      32^9  = 32t |          5 years |
+|     1 |      32^1  =  32 |          < 1 sec |
+|     2 |      32^2  =  1k |          < 1 sec |
+|     3 |      32^3  = 32k |          < 1 sec |
+|     4 |      32^4  =  1m |            2 sec |
+|     5 |      32^5  = 32m |            1 min |
+|     6 |      32^6  =  1g |           30 min |
+|     7 |      32^7  = 32g |            1 day |
+|     8 |      32^8  =  1t |          25 days |
+|     9 |      32^9  = 32t |        2.5 years |
 |    16 |      32^16 =  1y |         too long |
 +---------------------------------------------+
+
 Note: you can speed it up if you're only interested in a certain
       string to appear somewhere, instead of at a fixed position
       like the beginning of the hash. Also you could make use of
@@ -129,13 +139,33 @@ Note: you can speed it up if you're only interested in a certain
 
 BUGS
 ~~~~
-Let me know!  If there are any, it's probably in the Linux port.
+-p still requires a pattern to be present, even though it is not
+  used.  (e.g. `./shallot -p foo`)
+OpenBSD has terrible pthreading, and thus needs a ugly hack that
+  fork()s instead of threading, but I have neglected to add this
+  yet.
+There is a timing-related bug that is known to occur on GENERIC
+  systems.  No debug info yet.  :(
 
 
 TODO
 ~~~~
-* use something faster than OpenSSL's i2d_RSAPublicKey() for PEM-encoding
-* lots and lots of command line options (flags) so you can fine tune
-* support hardware acceleration (e.g. VIA Padlock's hardware SHA-1)
+High priority:
+* Reverse base32 regex encoding (regex accelation, base32 bypass)
+* Optimize SHA1_Final() (use my own function that only produces half
+    of a SHA-1 hash)
+* Reduce amount of data that is rehashed at byte length thresholds
+* Adjust default e limit for optimal hashing speed
+
+Medium priority:
+* fix known bugs (namely pthreading bug)
+* support hardware acceleration (what cards would even work?)
+* prime pooling to speed up generation of "tor-compliant" domains
+* more of command line options (flags) so you can fine tune hashing
+
+Low priority:
+* a config script that checks for all the headers (use autoconf?)
+* allow -m to be used with -d/-v (periodically write status to file)
 * make sure the requested hash contains base32 chars (2-7, a-z) only
 * make sure the requested hash is valid (not longer that 16 chars)
+
