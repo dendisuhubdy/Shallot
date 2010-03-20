@@ -9,9 +9,10 @@
 
 // help - how to use this stuff
 void usage(void) {
-  printf("Usage: shallot [-dmpv] [-f <file>] [-t count] [-e limit] pattern\n"
+  printf("Usage: shallot [-dmopv] [-f <file>] [-t count] [-e limit] pattern\n"
          "  -d        : Daemonize (requires -f)\n"
          "  -m        : Monitor mode (incompatible with -f/-v)\n"
+	 "  -o        : Optimize RSA key size to improve SHA-1 hashing speed\n"
          "  -p        : Print 'pattern' help and exit (requires pattern)\n"
          "  -v        : Verbose mode (debugging)\n"
          "  -f <file> : Write output to <file>\n"

@@ -10,15 +10,31 @@
 #include <string.h>
 #include <openssl/pem.h>
 
+// endian crap for htobe16() [only needed
+// for base32_onion which should be moved] {
+#include <stdint.h> // OpenBSD needs this included before sys/endian.h
+
+#if defined(LINUX_PORT) || defined(OSX) || defined(GENERIC)
+  #include "linux.h"
+#else
+  #include <sys/param.h> // OpenBSD needs this early on too
+  #include <sys/endian.h>
+#endif
+// }
+
+// TODO: Move to math.c?
 void base32_onion(char *dst, unsigned char *src) { // base32 encode hash
-  uint16_t i, bit, v, u;
-  for(i = 0, bit = 0; bit < BASE32_NUM_BITS; ++i, bit += 5) {
-    v = ((uint8_t)src[bit/8]) << 8;
-    if(bit+5 < BASE32_NUM_BITS) v += (uint8_t)src[(bit/8)+1];
-    u = (v >> (11-(bit%8))) & 0x1F;
-    dst[i] = BASE32_ALPHABET[u];
+  uint8_t byte = 0,   // dst location
+          offset = 0; // bit offset
+  for(; byte < BASE32_ONIONLEN; offset += 5) {
+    if(offset > 7) {
+      offset -= 8;
+      src++;
+    }
+    dst[byte++] = BASE32_ALPHABET[(htobe16(*(uint16_t*)src) >> (11-offset))
+                                  & (uint16_t)0x001F];
   }
-  dst[i] = '\0';
+  dst[byte] = '\0';
 }
 
 void print_onion(char *onion) { // pretty print hash

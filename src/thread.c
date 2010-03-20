@@ -24,14 +24,14 @@
 #include <openssl/rsa.h>
 #include <openssl/sha.h>
 
-void *worker(void *unused) { // life cycle of a cracking pthread
-  uint16_t len;
+void *worker(void *params) { // life cycle of a cracking pthread
   uint64_t e_be; // storage for our "big endian" version of e
   uint8_t buf[SHA1_DIGEST_LEN],
-          der[RSA_KEYS_BITLEN];
+          der[RSA_EXP_DER_LEN + 1], // TODO: is the size of this right?
+          optimum = *(uint8_t*)params;
   char onion[BASE32_ONIONLEN];
   SHA_CTX hash, copy;
-  RSA *rsa = 0;
+  RSA *rsa;
 
   if(verbose)
     printf("Thread entering loop... (ID: 0x%X)\n", (uint32_t)pthread_self());
@@ -42,21 +42,19 @@ void *worker(void *unused) { // life cycle of a cracking pthread
     if(verbose)
       printf("Generating new key... (ID: 0x%X)\n", (uint32_t)pthread_self());
 
-    rsa = RSA_generate_key(RSA_KEYS_BITLEN, RSA_PK_EXPONENT, NULL, NULL);
-    if(!rsa) // if key generation fails (no prng seed?)
+    if(optimum)
+      rsa = easygen(RSA_OPTM_BITLEN - RSA_PK_E_LENGTH * 8, RSA_PK_E_LENGTH,
+                    der, RSA_OPT_DER_LEN, &hash);
+    else
+      rsa = easygen(RSA_KEYS_BITLEN, RSA_PK_E_LENGTH, der, RSA_EXP_DER_LEN,
+                    &hash);
+
+    if(!rsa) // if key generation fails (no [p]rng seed?)
       error(X_KEY_GEN_FAILS);
 
-    uint8_t *tmp = der;
-    len = i2d_RSAPublicKey(rsa, &tmp); // convert RSA key to X.690 DER format
-    if(len != RSA_EXP_DER_LEN) // if we got an unexpected length...
-      continue; // ...try again
-
     uint8_t e_bytes = RSA_PK_E_LENGTH; // number of bytes e occupies
-    uint64_t e = RSA_PK_EXPONENT; // public exponent
+    uint64_t e = RSA_PK_EXPONENT;      // public exponent
     uint64_t e_byte_thresh;
-
-    SHA1_Init(&hash); // TODO: move to a function (is that thread safe?)
-    SHA1_Update(&hash, der, RSA_REL_DER_LEN);
 
     int_pow(2, e_bytes * 8, &e_byte_thresh);
     e_byte_thresh++;
@@ -71,12 +69,12 @@ void *worker(void *unused) { // life cycle of a cracking pthread
       // convert e to big-endian format
       e_be = htobe64(e);
 
-      // compute SHA1 digest (majority of loop time spent here?  time it!)
+      // compute SHA1 digest (majority of loop time spent here!)
       SHA1_Update(&copy, e_ptr, e_bytes);
       SHA1_Final(buf, &copy);
 
       base32_onion(onion, buf); // base32 encode SHA1 digest
-      loop++; // keep track of our tries...
+      loop++;                   // keep track of our tries...
 
       if(!regexec(regex, onion, 0, 0, 0)) { // check for a match
         if(verbose)
@@ -91,16 +89,16 @@ void *worker(void *unused) { // life cycle of a cracking pthread
           printf("\n"); // keep our printing pretty!
 
         if(!BN_bin2bn(e_ptr, e_bytes, rsa->e)) // store our e in the actual key
-          error(X_BIGNUM_FAILED); // and make sure it got there
+          error(X_BIGNUM_FAILED);              // and make sure it got there
 
-        if(!sane_key(rsa)) // check our key
+        if(!sane_key(rsa))        // check our key
           error(X_YOURE_UNLUCKY); // bad key :(
 
         if(verbose)
           printf("Public exponent (e) is 0x%llX.\n", e);
 
         print_onion(onion); // print our domain
-        print_prkey(rsa); // and more importantly the key
+        print_prkey(rsa);   // and more importantly the key
 
         RSA_free(rsa); // free up what's left
 
@@ -118,21 +116,28 @@ void *worker(void *unused) { // life cycle of a cracking pthread
         int_pow(2, ++e_bytes * 8, &e_byte_thresh);
         e_byte_thresh++;
 
-        // play with our key structure (do not try this at home!)
-        der[RSA_ADD_DER_OFF]++;
-        der[RSA_REL_DER_LEN - 1]++;
+        if(optimum) {
+          RSA_free(rsa);
+          easygen(RSA_OPTM_BITLEN - e_bytes * 8, e_bytes, der, RSA_OPT_DER_LEN,
+                  &hash);
 
-        // and our prebuilt hash
-        SHA1_Init(&hash); // TODO: move to a function (is that thread safe?)
-        SHA1_Update(&hash, der, RSA_REL_DER_LEN);
+          if(!rsa)
+            error(X_KEY_GEN_FAILS);
+        } else {
+          // play with our key structure (do not try this at home!)
+          der[RSA_ADD_DER_OFF]++;
+          der[RSA_EXP_DER_LEN - RSA_PK_E_LENGTH - 1]++;
+
+          // and our prebuilt hash
+          SHA1_Init(&hash); // TODO: move to a function
+          SHA1_Update(&hash, der, RSA_EXP_DER_LEN - RSA_PK_E_LENGTH);
+        }
 
         e_ptr--; // and move the pointer back
       }
     }
-  }
-
-  if(rsa) // let our other threads free their (now useless) stuff
     RSA_free(rsa);
+  }
 
   if(verbose)
     printf("Thread exiting loop... (ID: 0x%X)\n", (uint32_t)pthread_self());

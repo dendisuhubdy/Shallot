@@ -2,32 +2,9 @@
 
 #include "linux.h"
 
-#if defined(LINUX_PORT) || defined(OSX) || defined(GENERIC)
+#ifdef LINUX_PORT
 
 #include "defines.h"
-
-#if defined(OSX) || defined(GENERIC)
-#include <arpa/inet.h>
-#else
-#include <endian.h>
-#include <netinet/in.h>
-#endif
-
-// why must glibc suck?
-#if BYTE_ORDER == BIG_ENDIAN
-#warning Compiling for a BIG_ENDIAN system.
-#define htobe64(x) (x)
-#elif BYTE_ORDER == LITTLE_ENDIAN
-#warning Compiling for a LITTLE_ENDIAN system.
-uint64_t htobe64(uint64_t x) {
-  return ((uint64_t)htonl(x) << 32) | htonl(x >> 32);
-}
-#else
-  #error Sell your PDP.
-#endif
-#endif // defined(LINUX_PORT) || defined(OSX)
-
-#ifdef LINUX_PORT
 #include <string.h>
 
 // Linux specific stuff (damn this is ugly code.  blame linus.)

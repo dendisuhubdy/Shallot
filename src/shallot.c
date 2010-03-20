@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
     usage();
 
   // set up our initial values
-  uint8_t daemon = 0;
+  uint8_t daemon = 0, optimum = 0;
   uint32_t threads = 1, x = 1;
   char *file = 0;
   elim = DEFAULT_E_LIMIT;
@@ -141,6 +141,10 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
         }
         case 'm': { // monitor
           monitor = 1;
+          break;
+        }
+        case 'o': { // prime optimization
+          optimum = 1;
           break;
         }
         case 'p': { // pattern help
@@ -273,7 +277,7 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
     if(verbose)
       printf("Additional thread spawning (%u)...\n", x);
 
-    if(pthread_create(&thrd, NULL, worker, NULL))
+    if(pthread_create(&thrd, NULL, worker, &optimum))
       error(X_THREAD_CREATE);
   }
 
@@ -288,7 +292,7 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
            "Main thread (ID: 0x%X) entering loop...\n",
            (uint32_t)pthread_self());
 
-  worker(NULL); // use main thread for brute forcing too
+  worker(&optimum); // use main thread for brute forcing too
 
   if(pthread_self() != lucky_thread) { // be safe and avoid EDEADLK
     if(verbose)

@@ -1,3 +1,10 @@
+Changed from shallot-0.0.2 to shallot-0.0.3:
+
+* Fixed some memory leaks.
+* More efficient use of memory.
+* Added '-o' option to optimize prime size for SHA-1 hashing.
+
+
 Changed from shallot-0.0.1 to shallot-0.0.2:
 
 * Corrected some things in the README.

@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------
-                            shallot 0.0.2
+                            shallot 0.0.3
 ---------------------------------------------------------------------
 
 CONTENT
@@ -42,15 +42,16 @@ expression patterns.
 >> example: create private key for test*.onion:
 
 $ ./shallot
-Usage: shallot [-dmpv] [-f <file>] [-t count] [-e limit] pattern
+Usage: shallot [-dmopv] [-f <file>] [-t count] [-e limit] pattern
   -d        : Daemonize (requires -f)
-  -m        : Monitor mode (incompatible with -d/-v)
+  -m        : Monitor mode (incompatible with -f/-v)
+  -o        : Optimize RSA key size to improve SHA-1 hashing speed
   -p        : Print 'pattern' help and exit (requires pattern)
   -v        : Verbose mode (debugging)
   -f <file> : Write output to <file>
   -t count  : Forces exactly count threads to be spawned
   -e limit  : Manually define the limit for e
-Version: 0.0.2
+Version: 0.0.3
 
 $ ./shallot -p foo
 base32 alphabet allows letters [a-z] and digits [2-7]
@@ -104,16 +105,16 @@ SHA1 hash, Torland would be in serious trouble.
 
 The speed of the worker() loop can be divided in:
 
-+------------------------------------+
-| function(s)      | CPU consumption |
-|------------------+-----------------|
-|  Copy SHA-1 hash |            1.5% |
-|  Endian swap 'e' |            0.1% |
-|         Hash 'e' |           67.9% |
-|  B32-encode hash |           21.9% |
-| Regex comparison |            8.6% |
-+------------------------------------+
-  *** This is approximate.  YMMV ***
++-------------------------+
+|    Function | CPU usage |
+|-------------+-----------|
+|    Copy CTX |      1.5% |
+| Endian swap |      0.1% |
+|        Hash |     67.9% |
+|  B32-encode |     21.9% |
+|  Regex eval |      8.6% |
++-------------------------+
+       *** YMMV. ***
 
 On my 1.5GHz x86-machine, I get about 500k hashes/sec.
 +---------------------------------------------+
@@ -128,6 +129,8 @@ On my 1.5GHz x86-machine, I get about 500k hashes/sec.
 |     7 |      32^7  = 32g |            1 day |
 |     8 |      32^8  =  1t |          25 days |
 |     9 |      32^9  = 32t |        2.5 years |
+.       .                  .                  .
+.       .                  .                  .
 |    16 |      32^16 =  1y |         too long |
 +---------------------------------------------+
 

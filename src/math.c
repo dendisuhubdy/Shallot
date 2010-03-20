@@ -1,6 +1,7 @@
 // custom math routines for shallot
 
 #include "math.h"
+#include "defines.h"
 
 void int_pow(uint32_t base, uint8_t pwr, uint64_t *out) { // integer pow()
   *out = (uint64_t)base;
@@ -17,6 +18,39 @@ uint8_t BN_lcm(BIGNUM *r, BIGNUM *a, BIGNUM *b, BIGNUM *gcd, BN_CTX *ctx) {
   if(!BN_mul(r, b, tmp, ctx))
     return 0;
   return 1;
+}
+
+// wraps RSA key generation, DER encoding, and initial SHA-1 hashing
+RSA *easygen(uint16_t num, uint8_t len, uint8_t *der, uint8_t edl,
+             SHA_CTX *ctx) {
+  uint8_t der_len;
+  RSA *rsa;
+
+  for(;;) { // ugly, I know, but better than using goto imho
+    rsa = RSA_generate_key(num, 3, NULL, NULL);
+
+    if(!rsa) // if key generation fails (no [p]rng seed?)
+      return rsa;
+
+    // encode RSA key in X.690 DER format
+    uint8_t *tmp = der;
+    der_len = i2d_RSAPublicKey(rsa, &tmp);
+
+    if(der_len == edl - len + 1)
+      break; // encoded key was the correct size, keep going
+
+    RSA_free(rsa); // encoded key was the wrong size, try again
+  }
+
+  // adjust for the actual size of e
+  der[RSA_ADD_DER_OFF] += len - 1;
+  der[der_len - 2]     += len - 1;
+
+  // and prepare our hash context
+  SHA1_Init(ctx);
+  SHA1_Update(ctx, der, der_len - 1);
+
+  return rsa;
 }
 
 uint8_t sane_key(RSA *rsa) { // checks sanity of a RSA key (PKCS#1 v2.1)
