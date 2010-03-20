@@ -1,0 +1,110 @@
+----------------------------------------------------------------------
+                           Onion Hash v0.0.1
+----------------------------------------------------------------------
+
+
+CONTENT
+~~~~~~~
+Makefile    - builts the binary (on most systems)
+README      - the file you are reading right now
+onionhash.c - computes customized hashes and keys
+
+
+INSTALL
+~~~~~~~
+* you need to have a recent version of OpenSSL installed
+* type "make" and pray (configure-script in devolopement)
+* run the program, get some coffee. come back next month
+
+
+ABOUT
+~~~~~
+This program allows you to create customized onionhashes for Tor
+Hidden Services. It's based on THC's Fuzzy Fingerprint technique
+(paper available at http://thc.org/papers/ffp.pdf). "Customized"
+means, you can choose parts of the hash to match certain regular
+expression patterns.
+
+>> example: create private key for test*.onion:
+
+$ ./onionhash 
+Usage: onionhash pattern
+base32 alphabet allows letters [a-z] and digits [2-7]
+pattern can be a POSIX-style regular expression, e.g.
+  xxx        must contain "xxx"
+  bar$       must end with "bar"
+  ^foo       must begin with "foo"
+  b[a4]r     may contain leetspeech ;)
+  ^ab|^cd    must begin with "ab" or "cd"
+  [a-z]{16}  must contain letters only, no digits
+
+$ ./onionhash ^test
+----------------------------------------------------------------
+Found matching pattern after 99133 tries: testvztz3tfoiofv.onion
+----------------------------------------------------------------
+-----BEGIN RSA PRIVATE KEY-----
+MIICXgIBAAKBgQC3R85m6NQaA1ZjaYqvz1hvFIjbL4RtKdJbG8hlC9xEBkvfr/BG
+8Z5vDiUzdbDt8mEBuZUDanx80uGJvbXTgmczX0UlkEOgGiZ8RKpnsbKaf/EJNrIw
+T7MSXQmWNcm22nDeViV7fwy+Usyal2RE5cdVCFsPtEbVZqCumlKkEgCyFwIDBAZ7
+AoGBAJSa2cGuru/XhzJAEAIwHZbgPDnum9T/srOYxUKW6afHZeOu5S4Cclwb+xb/
+pGOtzn71XZfCKMfiVdxB/f3XTcRrYB2VnBoNToTD7WfH6DksdDf4zunqiEjvxi9K
+R+tKhxmF7OedrRt8wIhUmFd1E2Q9nbTHI6icdB4kR4QkYKZzAkEA5M6samK7+495
+6SWpRXiePIs7sHKWuxdCrG7kW5RNJrv2CcGYwK46TPcaXBcRfM4eq9+9PGoKi0IO
+gSpOZ5vRYQJBAM0QAZYTZ6ApD014x372MX1ZNofuYL/+XF8ZPZV6Sh4+9MUBuNPb
+yL7BENDr6pX4Zm6OepvAphhCa4vGno2pHncCQQCQnfhUCHANU4bjtX4EOoI63WDq
+UwBOeIWxu0YvGt7Z25Dg9CNz/aX8UZIoj6VyKxLRbR9+K3mNrNgaopW+ZDKzAkEA
+ttgTK1ALe+3v+5H+Ez1SvFPREDFcHihrfD1Ipc5zicY9ixTArgdyZvk+Pi+AMBVV
+sL2HWvjRLEAgRclvKfkwWwJAFtM+BIGRM5me+fMALuBBEtKnbJ6maflsyucErEb0
+pIIBkovF5oyWO3lSBmtStJIANNkHOg8aXqjcgPKusDN7CQ==
+-----END RSA PRIVATE KEY-----
+
+This key must be saved as file 'private_key' in your HiddenServiceDir.
+
+
+SECURITY
+--------
+The created keys may be insecure - so don't bet on it.
+The keys may even be broken because we do not check if
+rsa->e+2L is coprime to phi(n) and if rsa->e < phi(n).
+
+
+PERFORMANCE
+-----------
+First of all, you cannot create any hash you want (in adequate time).
+If you could easily find collisions on the first half (80 bit) of the
+SHA1 hash, Torland would be in serious trouble.
+
+The speed of the brute_force_onion() loop can be divided in...
++----------------------------------------+
+| function(s)          | CPU consumption |
+|----------------------+-----------------+
+| compute next RSA key |           80.8% |
+|   PEM-encode RSA key |           11.7% |
+|    compute SHA1 hash |            6.4% |
+|    BASE32-enoce hash |            0.7% |
+|   compare with regex |            0.4% |
++----------------------------------------+
+
+On a 1.8GHz x86-machine, i get about 40k hashes per second...
++-----------------------------------------------------------------+
+| chars | avarange number of tries | avarange time on i386/1.8GHz |
+|-------+--------------------------+------------------------------|
+|     1 |              32^1  =  32 |                       <1 sec |
+|     2 |              32^2  =  1k |                       <1 sec |
+|     3 |              32^3  = 32k |                       ~1 sec |
+|     4 |              32^4  =  1m |                       26 sec |
+|     5 |              32^5  = 32m |                       14 min |
+|     6 |              32^6  =  1g |                      8 hours |
+|     7 |              32^7  = 32g |                      10 days |
+|     8 |              23^8  =  1t |                      ~1 year |
+|     9 |              32^9  = 32t |                     28 years |
+|    16 |              32^16 =  1y |                     too long |
++-----------------------------------------------------------------+
+Note: you can speed it up by using a regex that does not care about
+the pattern's position (e.g. beginning), or by allowing leetspeech.
+
+
+BUGS
+----
+Registration of an onionhash containing the string 'coca-cola' on the
+dirserver(s) may lead to persecution by the almighty trademark police.
