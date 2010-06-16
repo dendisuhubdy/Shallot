@@ -33,14 +33,9 @@ void *worker(void *params) { // life cycle of a cracking pthread
   SHA_CTX hash, copy;
   RSA *rsa;
 
-  if(verbose)
-    printf("Thread entering loop... (ID: 0x%X)\n", (uint32_t)pthread_self());
-
   while(!found) {
     // keys are only generated every so often
     // every 549,755,781,120 tries by default
-    if(verbose)
-      printf("Generating new key... (ID: 0x%X)\n", (uint32_t)pthread_self());
 
     if(optimum)
       rsa = easygen(RSA_OPTM_BITLEN - RSA_PK_E_LENGTH * 8, RSA_PK_E_LENGTH,
@@ -77,9 +72,6 @@ void *worker(void *params) { // life cycle of a cracking pthread
       loop++;                   // keep track of our tries...
 
       if(!regexec(regex, onion, 0, 0, 0)) { // check for a match
-        if(verbose)
-          printf("Matching hash found, killing off other threads..."
-                 " (ID: 0x%X)\n", (uint32_t)pthread_self());
 
         // let our main thread know on which thread to wait
         lucky_thread = pthread_self();
@@ -94,17 +86,10 @@ void *worker(void *params) { // life cycle of a cracking pthread
         if(!sane_key(rsa))        // check our key
           error(X_YOURE_UNLUCKY); // bad key :(
 
-        if(verbose)
-          printf("Public exponent (e) is 0x%llX.\n", e);
-
         print_onion(onion); // print our domain
         print_prkey(rsa);   // and more importantly the key
 
         RSA_free(rsa); // free up what's left
-
-        if(verbose)
-          printf("Thread exiting loop... (ID: 0x%X)\n",
-                 (uint32_t)pthread_self());
 
         return 0;
       }
@@ -138,9 +123,6 @@ void *worker(void *params) { // life cycle of a cracking pthread
     }
     RSA_free(rsa);
   }
-
-  if(verbose)
-    printf("Thread exiting loop... (ID: 0x%X)\n", (uint32_t)pthread_self());
 
   return 0;
 }

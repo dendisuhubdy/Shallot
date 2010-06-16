@@ -44,10 +44,9 @@ expression patterns.
 $ ./shallot
 Usage: shallot [-dmopv] [-f <file>] [-t count] [-e limit] pattern
   -d        : Daemonize (requires -f)
-  -m        : Monitor mode (incompatible with -f/-v)
+  -m        : Monitor mode (incompatible with -f)
   -o        : Optimize RSA key size to improve SHA-1 hashing speed
   -p        : Print 'pattern' help and exit (requires pattern)
-  -v        : Verbose mode (debugging)
   -f <file> : Write output to <file>
   -t count  : Forces exactly count threads to be spawned
   -e limit  : Manually define the limit for e
@@ -168,7 +167,7 @@ Medium priority:
 
 Low priority:
 * a config script that checks for all the headers (use autoconf?)
-* allow -m to be used with -d/-v (periodically write status to file)
+* allow -m to be used with -d (periodically write status to file)
 * make sure the requested hash contains base32 chars (2-7, a-z) only
 * make sure the requested hash is valid (not longer that 16 chars)
 

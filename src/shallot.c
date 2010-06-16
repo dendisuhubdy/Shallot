@@ -73,7 +73,6 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
   elim = DEFAULT_E_LIMIT;
   loop = 0;
   found = 0;
-  verbose = 0;
   monitor = 0;
 
   #ifdef BSD                                   // my
@@ -151,10 +150,6 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
           pattern();
           break;
         }
-        case 'v': { // verbose
-          verbose = 1;
-          break;
-        }
         case 'f': { // file <file>
           if((argv[x][y + 1] != '\0') || (x + 1 > argc)) {
             fprintf(stderr, "Error: -f format is '-f <file>'\n");
@@ -199,7 +194,7 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
   if(threads < 1)
     error(X_INVALID_THRDS);
 
-  if((monitor && file) || (monitor && verbose))
+  if(monitor && file)
     error(X_EXCLUSIVE_OPT);
 
   if(!(elim & 1) || (elim < RSA_PK_EXPONENT) || (elim > MAXIMUM_E_LIMIT))
@@ -207,9 +202,6 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
 
   if(daemon && !file)
     error(X_NEED_FILE_OUT);
-
-  if(verbose)
-    printf("Options parsed successfully.\nCompiling regex...\n");
 
   // compile regular expression from argument
   char *pattern = argv[argc - 1];
@@ -222,13 +214,7 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
   if(regcomp(regex, pattern, REG_EXTENDED | REG_NOSUB))
     error(X_REGEX_COMPILE);
 
-  if(verbose)
-    printf("Regex compiled successfully.\n");
-
   if(file) {
-    if(verbose)
-      printf("Redirecting output to file...\n");
-
     umask(077); // remove permissions to be safe
 
     // redirect output
@@ -239,9 +225,6 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
   }
 
   if(daemon && (getppid() != 1)) { // daemonize if we should
-    if(verbose)
-      printf("Daemonizing...\n");
-
     pid_t pid = fork();
 
     if(pid < 0) // fork failed
@@ -267,19 +250,12 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
     signal(SIGTTIN, SIG_IGN);
     signal(SIGHUP,  SIG_IGN);
 
-    if(verbose)
-      printf("Daemonization completed successfully!\n");
   } else signal(SIGINT, terminate); // die on CTRL-C
 
   pthread_t thrd;
 
-  if(verbose)
-    printf("Spawning threads... (Total: %u)\n", threads);
-
   // create our threads for 2+ cores
   for(x = 1; x < threads; x++) {
-    if(verbose)
-      printf("Additional thread spawning (%u)...\n", x);
 
     if(pthread_create(&thrd, NULL, worker, &optimum))
       error(X_THREAD_CREATE);
@@ -291,23 +267,12 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
       error(X_THREAD_CREATE);
   }
 
-  if(verbose)
-    printf("All additional threads (if any) spawned.\n"
-           "Main thread (ID: 0x%X) entering loop...\n",
-           (uint32_t)pthread_self());
-
   worker(&optimum); // use main thread for brute forcing too
 
   if(pthread_self() != lucky_thread) { // be safe and avoid EDEADLK
-    if(verbose)
-      printf("Main thread waiting on lucky thread (ID: 0x%X) to exit...\n",
-             (uint32_t)lucky_thread);
 
     pthread_join(lucky_thread, NULL); // wait for the lucky thread to exit
   }
-
-  if(verbose)
-    printf("Lucky thread exited loop.\nCleaning up and exiting...\n");
 
   regfree(regex);
   return 0;
