@@ -14,18 +14,20 @@
   #include <netinet/in.h>
 #endif
 
-#if BYTE_ORDER == BIG_ENDIAN
-  #warning Compiling for a BIG_ENDIAN system.
-  #define htobe64(x) (x)
-  #define htobe16(x) (x)
+#ifndef htobe64
+	#if BYTE_ORDER == BIG_ENDIAN
+		#warning Compiling for a BIG_ENDIAN system.
+		#define htobe64(x) (x)
+		#define htobe16(x) (x)
 
-#elif BYTE_ORDER == LITTLE_ENDIAN
-  #warning Compiling for a LITTLE_ENDIAN system.
-  #define htobe64(x) (((uint64_t)htonl(x) << 32) | htonl(x >> 32))
-  #define htobe16(x) htons(x)
+	#elif BYTE_ORDER == LITTLE_ENDIAN
+		#warning Compiling for a LITTLE_ENDIAN system.
+		#define htobe64(x) (((uint64_t)htonl(x) << 32) | htonl(x >> 32))
+		#define htobe16(x) htons(x)
 
-#else
-  #error Sell your PDP.
+	#else
+		#error Sell your PDP.
+	#endif
 #endif
 
 #ifdef LINUX_PORT
