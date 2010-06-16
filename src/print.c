@@ -62,7 +62,7 @@ void print_prkey(RSA *rsa) { // print PEM formated RSA key
   BIO *b = BIO_new(BIO_s_mem());
   PEM_write_bio_RSAPrivateKey(b, rsa, NULL, NULL, 0, NULL, NULL);
   BIO_get_mem_ptr(b, &buf);
-  BIO_set_close(b, BIO_NOCLOSE);
+  (void)BIO_set_close(b, BIO_NOCLOSE);
   BIO_free(b);
   char *dst = malloc(buf->length+1);
   strncpy(dst, buf->data, buf->length);
