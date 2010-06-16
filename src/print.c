@@ -5,6 +5,7 @@
 #include "print.h"
 #include "defines.h"
 #include "globals.h"
+#include "error.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -44,7 +45,8 @@ void print_onion(char *onion) { // pretty print hash
   s = malloc(PRINT_ONION_MAX);
   snprintf(s, PRINT_ONION_MAX, PRINT_ONION_STR, loop, onion);
   #else
-  asprintf(&s, PRINT_ONION_STR, loop, onion);
+  if (asprintf(&s, PRINT_ONION_STR, loop, onion) == -1)
+		error(X_OUT_OF_MEMORY);
   #endif
   for(i=0; i<strlen(s); i++)
     printf("-"); // TODO: use fputc()?

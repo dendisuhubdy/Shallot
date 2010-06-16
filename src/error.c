@@ -105,6 +105,11 @@ void error(int32_t code) {
       break;
     }
 
+    case X_OUT_OF_MEMORY: {
+			fprintf(stderr, "ERROR: Out of memory error.\n");
+			break;
+		}
+
 #ifdef BSD
     case X_SYSCTL_FAILED: {
       fprintf(stderr, "ERROR: sysctlbyname failed.\n");

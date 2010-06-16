@@ -20,6 +20,7 @@
 #define X_NEED_FILE_OUT 0x0C
 #define X_FILE_OPEN_ERR 0x0D
 #define X_DAEMON_FAILED 0x0E
+#define X_OUT_OF_MEMORY 0x11
 
 #ifdef BSD
   // BSD specific defines
