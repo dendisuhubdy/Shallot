@@ -232,8 +232,10 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
     umask(077); // remove permissions to be safe
 
     // redirect output
-    freopen(file, "w", stdout);
-    freopen(file, "w", stderr);
+    if (
+			(freopen(file, "w", stdout) == NULL) ||
+			(freopen(file, "w", stderr) == NULL)
+		) error(X_FILE_OPEN_ERR);
   }
 
   if(daemon && (getppid() != 1)) { // daemonize if we should
@@ -254,7 +256,9 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
     if(chdir("/") < 0) // cd to root
       error(X_DAEMON_FAILED);
 
-    freopen("/dev/null", "r", stdin); // block input
+		// block input
+    if (freopen("/dev/null", "r", stdin) == NULL)
+			error(X_FILE_OPEN_ERR);
 
     // ignore certain signals
     signal(SIGCHLD, SIG_IGN);
