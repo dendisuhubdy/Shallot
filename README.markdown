@@ -65,8 +65,8 @@ Shallot's sources from [Tas's site][tasweb] and put them into a Git repository.
 I made a few modifications, wrote a new README, and put the whole thing up on
 GitHub for all to see.
 
-[hs]: <https://www.torproject.org/hidden-services.html.en>
-[hangman]: <http://hangman5naigg7rr.onion/>
-[tasweb]: <http://taswebqlseworuhc.onion/>
-[tor]: <https://www.torproject.org/>
-[tor-manual]: <https://www.torproject.org/tor-manual.html.en>
+[hs]: https://www.torproject.org/docs/hidden-services
+[hangman]: http://hangman5naigg7rr.onion/
+[tasweb]: http://taswebqlseworuhc.onion/
+[tor]: https://www.torproject.org/
+[tor-manual]: https://www.torproject.org/docs/tor-manual
