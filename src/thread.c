@@ -75,7 +75,7 @@ void *worker(void *params) { // life cycle of a cracking pthread
 
         // let our main thread know on which thread to wait
         lucky_thread = pthread_self();
-        found = 1; // kill off our other threads, asyncronously
+        found = 1; // kill off our other threads, asynchronously
 
         if(monitor)
           printf("\n"); // keep our printing pretty!
@@ -150,4 +150,3 @@ void *monitor_proc(void *unused) {
 
   return 0; // unreachable code, but prevents warnings (!?)
 }
-

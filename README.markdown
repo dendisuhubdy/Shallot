@@ -60,7 +60,7 @@ past. That quickly(?) evolved into onionhash 0.0.2 and 0.0.3, until Bebop and
 [Bebop's New Home in Onionspace](http://torlandypjxiligx.onion/) mysteriously
 vanished. At this point, it was picked up by &#96;Orum, who gave Shallot its
 current name, and went through three versions until &#96;Orum's site,
-[hangman - hidden (in plan) site][hangman], went down. I (katmagic) got
+[hangman - hidden (in plain) site][hangman], went down. I (katmagic) got
 Shallot's sources from [Tas's site][tasweb] and put them into a Git repository.
 I made a few modifications, wrote a new README, and put the whole thing up on
 GitHub for all to see.

@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
 
   close(fd); // TODO: add error handling! (is there any point?)
 
-  if(!threads) { // This is needed for Liunx/ARM (do not remove!)
+  if(!threads) { // This is needed for Linux/ARM (do not remove!)
     printf("WARNING: No CPUs detected.  Defaulting to 1 thread... "
            "(or manually specify thread count with -t)\n");
     threads++;
@@ -277,4 +277,3 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
   regfree(regex);
   return 0;
 }
-
