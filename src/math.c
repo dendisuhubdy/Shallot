@@ -26,10 +26,10 @@ RSA *easygen(uint16_t num, uint8_t len, uint8_t *der, uint8_t edl,
   uint8_t der_len;
   RSA *rsa;
 
-  for(;;) { // ugly, I know, but better than using goto imho
+  for(;;) { // ugly, I know, but better than using goto IMHO
     rsa = RSA_generate_key(num, 3, NULL, NULL);
 
-    if(!rsa) // if key generation fails (no [p]rng seed?)
+    if(!rsa) // if key generation fails (no [P]RNG seed?)
       return rsa;
 
     // encode RSA key in X.690 DER format
@@ -67,7 +67,7 @@ uint8_t sane_key(RSA *rsa) { // checks sanity of a RSA key (PKCS#1 v2.1)
   BN_sub(p1, rsa->p, BN_value_one()); // p - 1
   BN_sub(q1, rsa->q, BN_value_one()); // q - 1
   BN_gcd(gcd, p1, q1, ctx);           // gcd(p - 1, q - 1)
-  BN_lcm(lambda, p1, q1, gcd, ctx);   // lamba(n)
+  BN_lcm(lambda, p1, q1, gcd, ctx);   // lambda(n)
 
   BN_gcd(chk, lambda, rsa->e, ctx); // check if e is coprime to lambda(n)
   if(!BN_is_one(chk))

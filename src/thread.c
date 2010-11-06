@@ -25,7 +25,7 @@
 #include <openssl/sha.h>
 
 void *worker(void *params) { // life cycle of a cracking pthread
-  uint64_t e_be; // storage for our "big endian" version of e
+  uint64_t e_be; // storage for our "big-endian" version of e
   uint8_t buf[SHA1_DIGEST_LEN],
           der[RSA_EXP_DER_LEN + 1], // TODO: is the size of this right?
           optimum = *(uint8_t*)params;
@@ -44,7 +44,7 @@ void *worker(void *params) { // life cycle of a cracking pthread
       rsa = easygen(RSA_KEYS_BITLEN, RSA_PK_E_LENGTH, der, RSA_EXP_DER_LEN,
                     &hash);
 
-    if(!rsa) // if key generation fails (no [p]rng seed?)
+    if(!rsa) // if key generation fails (no [P]RNG seed?)
       error(X_KEY_GEN_FAILS);
 
     uint8_t e_bytes = RSA_PK_E_LENGTH; // number of bytes e occupies
@@ -68,7 +68,7 @@ void *worker(void *params) { // life cycle of a cracking pthread
       SHA1_Update(&copy, e_ptr, e_bytes);
       SHA1_Final(buf, &copy);
 
-      base32_onion(onion, buf); // base32 encode SHA1 digest
+      base32_onion(onion, buf); // base32-encode SHA1 digest
       loop++;                   // keep track of our tries...
 
       if(!regexec(regex, onion, 0, 0, 0)) { // check for a match

@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
   if(sysctl(mib, 2, &threads, &size, NULL, 0)) // BSD
     error(X_SYSCTL_FAILED);                    // is
 
-  #elif defined(LINUX_PORT) // Oh no!  We're on linux... :(
+  #elif defined(LINUX_PORT) // Oh no!  We're on Linux... :(
   // ...even *Windows 95* (gasp!) has a better way of doing this...
   // TODO: move this to linux.c
   char cpuinfo[CPUINFO_BUF_SIZE] = "";
@@ -184,7 +184,7 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
         }
       }
       if(dbreak) {
-        x++; //skip the next param
+        x++; // skip the next param
         break;
       }
     }
@@ -267,7 +267,7 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
       error(X_THREAD_CREATE);
   }
 
-  worker(&optimum); // use main thread for brute forcing too
+  worker(&optimum); // use main thread for brute-forcing too
 
   if(pthread_self() != lucky_thread) { // be safe and avoid EDEADLK
 

@@ -24,7 +24,7 @@
 // }
 
 // TODO: Move to math.c?
-void base32_onion(char *dst, unsigned char *src) { // base32 encode hash
+void base32_onion(char *dst, unsigned char *src) { // base32-encode hash
   uint8_t byte = 0,   // dst location
           offset = 0; // bit offset
   for(; byte < BASE32_ONIONLEN; offset += 5) {
@@ -38,7 +38,7 @@ void base32_onion(char *dst, unsigned char *src) { // base32 encode hash
   dst[byte] = '\0';
 }
 
-void print_onion(char *onion) { // pretty print hash
+void print_onion(char *onion) { // pretty-print hash
   uint8_t i;
   char *s;
   #ifdef GENERIC
@@ -57,7 +57,7 @@ void print_onion(char *onion) { // pretty print hash
   free(s);
 }
 
-void print_prkey(RSA *rsa) { // print PEM formated RSA key
+void print_prkey(RSA *rsa) { // print PEM formatted RSA key
   BUF_MEM *buf;
   BIO *b = BIO_new(BIO_s_mem());
   PEM_write_bio_RSAPrivateKey(b, rsa, NULL, NULL, 0, NULL, NULL);

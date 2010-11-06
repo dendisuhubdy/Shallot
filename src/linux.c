@@ -1,4 +1,4 @@
-// linux specific stuff for shallot
+// Linux-specific stuff for shallot
 
 #include "linux.h"
 
@@ -7,7 +7,7 @@
 #include "defines.h"
 #include <string.h>
 
-// Linux specific stuff (damn this is ugly code.  blame linus.)
+// Linux-specific stuff (damn this is ugly code.  blame Linus.)
 uint8_t parse_cpuinfo(char *buf, uint16_t avail, uint16_t *used) {
   uint16_t x = 0;
   char procsfound = 0;
