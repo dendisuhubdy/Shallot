@@ -55,7 +55,7 @@ A History of Shallot
 --------------------
 Shallot has a long history in [Onion Land][hs]. In its original incarnation,
 Shallot was originally written by a mysterious Onion Lander called Bebop, who
-created its predecessor, tor-crypt-0.0.1, at some unknown time in the distant
+created its predecessor, onionhash-0.0.1, at some unknown time in the distant
 past. That quickly(?) evolved into onionhash 0.0.2 and 0.0.3, until Bebop and
 [Bebop's New Home in Onionspace](http://torlandypjxiligx.onion/) mysteriously
 vanished. At this point, it was picked up by &#96;Orum, who gave Shallot its
