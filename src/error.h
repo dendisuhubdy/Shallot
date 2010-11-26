@@ -21,6 +21,8 @@
 #define X_FILE_OPEN_ERR 0x0D
 #define X_DAEMON_FAILED 0x0E
 #define X_OUT_OF_MEMORY 0x11
+#define X_MAXTIME_REACH 0x12
+
 
 #ifdef BSD
   // BSD specific defines
