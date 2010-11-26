@@ -9,13 +9,14 @@
 
 // help - how to use this stuff
 void usage(void) {
-  printf("Usage: shallot [-dmopv] [-f <file>] [-t count] [-e limit] pattern\n"
+  printf("Usage: shallot [-dmopv] [-f <file>] [-t count] [-x time] [-e limit] pattern\n"
          "  -d        : Daemonize (requires -f)\n"
          "  -m        : Monitor mode (incompatible with -f)\n"
 	 "  -o        : Optimize RSA key size to improve SHA-1 hashing speed\n"
          "  -p        : Print 'pattern' help and exit (requires pattern)\n"
          "  -f <file> : Write output to <file>\n"
          "  -t count  : Forces exactly count threads to be spawned\n"
+         "  -x secs   : Sets a limit on the maximum execution time. Has no effect without -m\n"
          "  -e limit  : Manually define the limit for e\n"
          "Version: %s\n", VERSION);
   exit(X_WRONG_NUMARGS);
@@ -108,6 +109,11 @@ void error(int32_t code) {
 			fprintf(stderr, "ERROR: Out of memory error.\n");
 			break;
 		}
+    case X_MAXTIME_REACH: {
+                        fprintf(stderr,"\n%s\n","Maximum execution time reached; exiting...");
+                        break;
+                }
+
 
 #ifdef BSD
     case X_SYSCTL_FAILED: {
