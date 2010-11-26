@@ -11,7 +11,7 @@
 // TODO: stop being lazy and pass this stuff where it's needed
 // TODO: also put settings in a struct
 uint64_t loop, elim;
-uint8_t found, monitor;
+uint8_t found, monitor, maxexectime;
 pthread_t lucky_thread;
 regex_t *regex;
 
