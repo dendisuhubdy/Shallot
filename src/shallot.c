@@ -168,6 +168,16 @@ int main(int argc, char *argv[]) { // onions are fun, here we go
           dbreak = 1;
           break;
         }
+        case 'x': { // maximum execution time
+          if((argv[x][y + 1] != '\0') || (x + 1 > argc)) {
+            fprintf(stderr, "Error: -x format is '-x <max exec time in seconds>'\n");
+            usage();
+          }
+          maxexectime = strtoul(argv[x + 1], NULL, 0);
+          dbreak = 1;
+          break;
+        }
+
         case 'e': { // e limit
           if((argv[x][y + 1] != '\0') || (x + 1 > argc)) {
             fprintf(stderr, "Error: -e format is '-e limit'\n");
