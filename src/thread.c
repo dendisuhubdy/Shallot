@@ -128,12 +128,27 @@ void *worker(void *params) { // life cycle of a cracking pthread
 }
 
 void *monitor_proc(void *unused) {
-  printf("\033[sPlease wait a moment for statistics...");
+  fprintf(stderr,"\033[sPlease wait a moment for statistics...");
   time_t start = time(NULL);
 
   for(;;) {
-    fflush(stdout); // make sure it gets printed
-    sleep(20);
+    fflush(stderr); // make sure it gets printed
+    int i = 0;
+
+    //this next little section sleeps 20 seconds before continuing
+    //and checks every second whether the maximum execution time (-x) has
+    //been reached.
+    for(i=0;i<20;i++){
+      sleep(1);
+      time_t current = time(NULL);
+      time_t elapsed = current - start;
+      if(elapsed>maxexectime || elapsed==maxexectime){
+        if(maxexectime > 0){
+          error(X_MAXTIME_REACH);
+        }
+      }
+    }
+
 
     if(found)
       return 0;
@@ -144,8 +159,9 @@ void *monitor_proc(void *unused) {
     if(!elapsed)
       continue; // be paranoid and avoid divide-by-zero exceptions
 
-    printf("\033[u\033[KHashes: %-20llu  Time: %-10d  Speed: %-llu",
+    fprintf(stderr,"\033[u\033[KHashes: %-20llu  Time: %-10d  Speed: %-llu",
            loop, (int)elapsed, loop / elapsed);
+
   }
 
   return 0; // unreachable code, but prevents warnings (!?)
