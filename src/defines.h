@@ -25,7 +25,7 @@
 #define RSA_ADD_DER_OFF 2 // don't ask...
 #define SHA_REL_CTX_LEN 10 * sizeof(SHA_LONG)
 
-#define BASE32_ONIONLEN SHA1_DIGEST_LEN/2*8/5+1
+#define BASE32_ONIONLEN 16
 #define BASE32_ALPHABET "abcdefghijklmnopqrstuvwxyz234567"
 
 #define PRINT_ONION_STR "Found matching domain after %llu tries: %s.onion"
