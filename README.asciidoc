@@ -54,6 +54,28 @@ sanity checks specified by PKCS #1 v2.1 (directly in sane_key), and then
 performs all of the sanity checks that Tor does when it generates an RSA
 keypair (by calling the OpenSSL function RSA_check_key).
 
+Performance
+-----------
+.Time to Generate a .onion with a Given Number of Initial Characters on a 500Khz Processor
+[align="right",float="left",width="30%"]
+|=======================================
+|characters | time to generate (approx.)
+|         1 |         less than 1 second
+|         2 |         less than 1 second
+|         3 |         less than 1 second
+|         4 |                  2 seconds
+|         5 |                   1 minute
+|         6 |                 30 minutes
+|         7 |                      1 day
+|         8 |                    25 days
+|         9 |                  2.5 years
+|        10 |                   40 years
+|        11 |                  640 years
+|        12 |                10 millenia
+|        13 |               160 millenia
+|        14 |          2.6 million years
+|=======================================
+
 A History of Shallot
 --------------------
 Shallot has a long history in Onion Land. In its original incarnation, Shallot
