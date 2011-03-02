@@ -3,12 +3,12 @@ Shallot
 
 About
 -----
-Shallot allows you to create customized .onion addresses for [Tor's][tor]
-[hidden services][hs].
-
-By customized, it is meant that part of the address can be selected. Choosing an
-entire address would take far longer than the universe is believed to have been
-in existence.
+Shallot allows you to create customized .onion addresses for
+link:https://www.torproject.org/[Tor's]
+link:https://www.torproject.org/docs/hidden-services[hidden services].
+(By customized, it is meant that part of the address can be selected. Choosing
+an entire address would take far longer than the universe is believed to have
+been in existence.)
 
 Installation
 ------------
@@ -38,10 +38,11 @@ Usage
 	-----END RSA PRIVATE KEY-----
 
 If you place the RSA private key (including its header and footer) in a file
-called *private_key* in the `HiddenServiceDir` you specified in your torrc, (If
-you don't know what that means, [read the Tor man page][tor-manual]. If you
+called `private_key` in the `HiddenServiceDir` you specified in your torrc, (If
+you don't know what that means,
+link:https://www.torproject.org/docs/tor-manual[read the Tor man page]. If you
 *still* don't understand, Shallot probably isn't for you.) then when you restart
-your Tor, a *hostname* file will be created in `HiddenServiceDir` that contains
+your Tor, a `hostname` file will be created in `HiddenServiceDir` that contains
 your shiny new .onion address.
 
 On the Security of Generated Keypairs
@@ -55,20 +56,15 @@ keypair (by calling the OpenSSL function RSA_check_key).
 
 A History of Shallot
 --------------------
-Shallot has a long history in [Onion Land][hs]. In its original incarnation,
-Shallot was originally written by a mysterious Onion Lander called Bebop, who
-created its predecessor, onionhash-0.0.1, at some unknown time in the distant
-past. That quickly(?) evolved into onionhash 0.0.2 and 0.0.3, until Bebop and
-[Bebop's New Home in Onionspace](http://torlandypjxiligx.onion/) mysteriously
+Shallot has a long history in Onion Land. In its original incarnation, Shallot
+was originally written by a mysterious Onion Lander called Bebop, who created
+its predecessor, onionhash-0.0.1, at some unknown time in the distant past. That
+quickly(?) evolved into onionhash 0.0.2 and 0.0.3, until Bebop and
+link:http://torlandypjxiligx.onion/[Bebop's New Home in Onionspace] mysteriously
 vanished. At this point, it was picked up by &#96;Orum, who gave Shallot its
 current name, and went through three versions until &#96;Orum's site,
-[hangman - hidden (in plain) site][hangman], went down. I (katmagic) got
-Shallot's sources from [Tas's site][tasweb] and put them into a Git repository.
-I made a few modifications, wrote a new README, and put the whole thing up on
-GitHub for all to see.
-
-[hs]: https://www.torproject.org/docs/hidden-services
-[hangman]: http://hangman5naigg7rr.onion/
-[tasweb]: http://taswebqlseworuhc.onion/
-[tor]: https://www.torproject.org/
-[tor-manual]: https://www.torproject.org/docs/tor-manual
+link:http://hangman5naigg7rr.onion/[hangman - hidden (in plain) site], went
+down. I (katmagic) got Shallot's sources from
+link:http://taswebqlseworuhc.onion/[Tas's site] and put them into a Git
+repository. I made a few modifications, wrote a new README, and put the whole
+thing up on GitHub for all to see.
