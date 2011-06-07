@@ -18,3 +18,8 @@ debug:
 	gcc -g -O3 -Wall -L/usr/local/lib -pthread -lm -lpthread -lssl -lcrypto -o shallot src/math.o src/error.o src/linux.o src/print.o src/thread.o src/shallot.o
 clean:
 	rm -f shallot src/math.o src/error.o src/linux.o src/print.o src/thread.o src/shallot.o
+install:
+	cp shallot /usr/bin/
+uninstall:
+	rm /usr/bin/shallot
+
