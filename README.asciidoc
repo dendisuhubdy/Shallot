@@ -56,7 +56,7 @@ keypair (by calling the OpenSSL function RSA_check_key).
 
 Performance
 -----------
-.Time to Generate a .onion with a Given Number of Initial Characters on a 500Khz Processor
+.Time to Generate a .onion with a Given Number of Initial Characters on a 1.5Ghz Processor
 [align="right",float="left",width="30%"]
 |=======================================
 |characters | time to generate (approx.)
