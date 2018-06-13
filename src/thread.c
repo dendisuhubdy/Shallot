@@ -81,7 +81,7 @@ void *worker(void *params) { // life cycle of a cracking pthread
         if(monitor)
           printf("\n"); // keep our printing pretty!
 
-	RSA_get0_key(rsa, NULL, &rsae, NULL);
+	RSA_get0_key(rsa, NULL, (const BIGNUM **)&rsae, NULL);
         if(!BN_bin2bn(e_ptr, e_bytes, rsae))   // store our e in the actual key
           error(X_BIGNUM_FAILED);              // and make sure it got there
 

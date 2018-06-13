@@ -20,14 +20,19 @@ uint8_t BN_lcm(BIGNUM *r, BIGNUM *a, BIGNUM *b, BIGNUM *gcd, BN_CTX *ctx) {
   return 1;
 }
 
+
 // wraps RSA key generation, DER encoding, and initial SHA-1 hashing
 RSA *easygen(uint16_t num, uint8_t len, uint8_t *der, uint8_t edl,
              SHA_CTX *ctx) {
   uint8_t der_len;
   RSA *rsa;
+  BIGNUM *BN_three; // This may be replaced with a constant version of a BIGNUM
+
+  BN_dec2bn(&BN_three, "3");
 
   for(;;) { // ugly, I know, but better than using goto IMHO
-    rsa = RSA_generate_key(num, 3, NULL, NULL);
+    rsa = RSA_new();
+    RSA_generate_key_ex(rsa, num, BN_three, NULL);
 
     if(!rsa) // if key generation fails (no [P]RNG seed?)
       return rsa;
@@ -72,9 +77,14 @@ uint8_t sane_key(RSA *rsa) { // checks sanity of a RSA key (PKCS#1 v2.1)
 	 *rsadmq1,
 	 *rsaiqmp;
 
-  RSA_get0_factors(rsa, &rsap, &rsaq);
-  RSA_get0_key(rsa, &rsan, &rsae, &rsad);
-  RSA_get0_crt_params(rsa, &rsadmp1, &rsadmq1, &rsaiqmp);
+  RSA_get0_factors(rsa, (const BIGNUM **)&rsap,
+		        (const BIGNUM **)&rsaq);
+  RSA_get0_key(rsa, (const BIGNUM **)&rsan,
+		    (const BIGNUM **)&rsae,
+	            (const BIGNUM **)&rsad);
+  RSA_get0_crt_params(rsa, (const BIGNUM **)&rsadmp1,
+		           (const BIGNUM **)&rsadmq1,
+		           (const BIGNUM **)&rsaiqmp);
 
   BN_sub(p1, rsap, BN_value_one());   // p - 1
   BN_sub(q1, rsaq, BN_value_one());   // q - 1
